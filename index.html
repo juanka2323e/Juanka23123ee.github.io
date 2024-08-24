@@ -1,0 +1,886 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JK PLAYER</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #72EDF2 10%, #5151E5 100%);
+            color: #fff;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #000000 10%, #333333 100%);
+            color: #fff;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            margin: auto;
+            text-align: center;
+            transition: background-color 0.5s ease;
+        }
+
+        .container.dark-mode {
+            background: rgba(50, 50, 50, 0.9);
+        }
+
+        .top-nav {
+            background-color: transparent;
+            color: #fff;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.5s ease;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .top-nav.dark-mode {
+            background-color: #000;
+        }
+
+        .menu-icon {
+            cursor: pointer;
+            font-size: 1.5em;
+            margin-left: 10px;
+        }
+
+        .menu-content {
+            display: none;
+            flex-direction: column;
+            align-items: flex-start;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
+            position: absolute;
+            top: 50px;
+            left: 10px;
+            width: 200px;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-content.dark-mode {
+            background-color: rgba(50, 50, 50, 0.9);
+            color: #fff;
+        }
+
+        .menu-content a {
+            padding: 10px;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            width: 100%;
+            text-align: left;
+        }
+
+        .menu-content a:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        #url-input, #search-input {
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .btn-custom {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.2s;
+        }
+
+        .btn-clear {
+            background-color: #6c757d;
+        }
+
+        .btn-custom:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        #error-message {
+            display: none;
+            color: red;
+            margin-top: 15px;
+            font-size: 1em;
+        }
+
+        #progress-bar {
+            width: 100%;
+            background-color: #f3f3f3;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 15px;
+            height: 20px;
+            display: none;
+        }
+
+        #progress-bar-inner {
+            height: 100%;
+            background-color: #007bff;
+            width: 0;
+        }
+
+        #channels {
+            margin-top: 25px;
+            text-align: left;
+        }
+
+        .channel-item {
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 15px;
+            cursor: pointer;
+            background-color: #fff;
+            transition: background-color 0.3s ease, transform 0.2s;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .channel-item:hover {
+            background-color: #e9e9e9;
+            transform: scale(1.02);
+        }
+
+        .channel-description {
+            font-size: 0.9em;
+            color: #555;
+            margin-top: 10px;
+        }
+
+        #player {
+            margin-top: 25px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+            background: #000;
+        }
+
+        .player-controls {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .player-controls button {
+            padding: 10px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease, transform 0.2s;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .player-controls button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .back-to-menu {
+            cursor: pointer;
+            color: #007bff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .back-to-menu:hover {
+            color: #0056b3;
+        }
+
+        .back-to-menu svg {
+            margin-right: 5px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        video {
+            animation: fadeIn 1s ease-in;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                max-width: 95%;
+            }
+
+            .player-controls button {
+                font-size: 1em;
+                flex-grow: 1;
+            }
+
+            .back-to-menu svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            #player {
+                margin-top: 0;
+            }
+
+            .menu-content {
+                width: 100%;
+                left: 0;
+                top: 50px;
+            }
+        }
+
+        .theme-switch {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease, transform 0.2s;
+        }
+
+        .theme-switch:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .quality-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            z-index: 10;
+        }
+
+        .quality-menu li {
+            list-style: none;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .quality-menu li:hover {
+            background-color: #e9e9e9;
+        }
+
+        .favorites-section {
+            padding: 20px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            margin-top: 20px;
+        }
+
+        .favorites-section.dark-mode {
+            background: rgba(50, 50, 50, 0.9);
+        }
+
+        .favorites-section h2 {
+            margin-bottom: 20px;
+        }
+
+        .favorite-item {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+            background-color: #fff;
+            transition: background-color 0.3s ease, transform 0.2s;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .favorite-item:hover {
+            background-color: #e9e9e9;
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body>
+    <div class="top-nav">
+        <div class="menu-icon" id="menu-icon">☰</div>
+        <div class="menu-content" id="menu-content">
+            <a href="#" id="home-link">Inicio</a>
+            <a href="#" id="favorites-link">Favoritos</a>
+            <a href="#" id="theme-link">Cambiar Tema</a>
+            <a href="#" id="quality-link">Calidad</a>
+            <a href="#" id="back-link">Volver</a>
+        </div>
+    </div>
+    <div class="container" id="main-container">
+        <h1 class="mb-4">JK PLAYER</h1>
+        <div class="form-group">
+            <input type="text" class="form-control" id="url-input" placeholder="Ingrese la URL de la lista IPTV...">
+        </div>
+        <div class="d-flex justify-content-center mb-3">
+            <button id="load-button" class="btn btn-primary btn-custom">Cargar Lista</button>
+            <button id="clear-cache-button" class="btn btn-secondary btn-custom btn-clear" style="display: none;">Borrar Caché</button>
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" id="search-input" placeholder="Buscar canales...">
+        </div>
+        <div id="error-message" class="alert alert-danger" role="alert" style="display: none;">Error: <span id="error-text"></span></div>
+        <div id="progress-bar" class="progress mb-3" role="progressbar" aria-label="Cargando lista" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="display: none;">
+            <div id="progress-bar-inner" class="progress-bar" style="width: 0%"></div>
+        </div>
+        <div id="channels" class="list-group"></div>
+        <div class="favorites-section" id="favorites-section" style="display: none;">
+            <h2>Favoritos</h2>
+            <div id="favorites" class="list-group"></div>
+        </div>
+    </div>
+    <div class="container" id="player-container" style="display: none;">
+        <div class="back-to-menu" id="back-to-menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zM7.646 11.354a.5.5 0 0 1-.708-.708L9.293 8 6.938 5.646a.5.5 0 0 1 .708-.708l2.5 2.5a.5.5 0 0 1 0 .708l-2.5 2.5z"></path>
+            </svg>
+            Volver al menú
+        </div>
+        <div id="player" class="mt-4">
+            <video id="video-player" controls>
+                <source id="video-source" src="" type="application/x-mpegURL">
+                Su navegador no soporta la reproducción de video.
+            </video>
+            <div class="player-controls mt-3">
+                <button id="prev-channel-button">Anterior</button>
+                <button id="next-channel-button">Siguiente</button>
+                <button id="volume-down-button">Bajar Sonido</button>
+                <button id="volume-up-button">Subir Sonido</button>
+                <button id="play-pause-button">Pausar</button>
+                <button id="rewind-button">Retroceder</button>
+                <button id="forward-button">Adelantar</button>
+                <button id="quality-button">Calidad</button>
+                <button id="fullscreen-button">Pantalla Completa</button>
+                <ul class="quality-menu">
+                    <li data-quality="low">Baja</li>
+                    <li data-quality="medium">Media</li>
+                    <li data-quality="high">Alta</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <button class="theme-switch" id="theme-switch">Tema Oscuro</button>
+    <script>
+        let currentChannelIndex = 0;
+        let channels = [];
+        let favorites = [];
+        let currentVolume = 1;
+        let isDarkMode = false;
+        let currentQuality = 'medium'; // Calidad inicial
+        let autoChangeInterval = null;
+
+        document.getElementById('load-button').addEventListener('click', function () {
+            const url = document.getElementById('url-input').value;
+            loadIPTVList(url);
+        });
+
+        document.getElementById('clear-cache-button').addEventListener('click', function () {
+            clearCache();
+        });
+
+        document.getElementById('back-to-menu').addEventListener('click', function () {
+            document.getElementById('player-container').style.display = 'none';
+            document.getElementById('main-container').style.display = 'block';
+        });
+
+        document.getElementById('home-link').addEventListener('click', function () {
+            document.getElementById('player-container').style.display = 'none';
+            document.getElementById('main-container').style.display = 'block';
+        });
+
+        document.getElementById('favorites-link').addEventListener('click', function () {
+            document.getElementById('player-container').style.display = 'none';
+            document.getElementById('main-container').style.display = 'block';
+            document.getElementById('favorites-section').style.display = 'block';
+            displayFavorites();
+        });
+
+        document.getElementById('theme-link').addEventListener('click', function () {
+            toggleTheme();
+        });
+
+        document.getElementById('quality-link').addEventListener('click', function () {
+            const qualityMenu = document.querySelector('.quality-menu');
+            qualityMenu.style.display = qualityMenu.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.getElementById('back-link').addEventListener('click', function () {
+            if (document.getElementById('player-container').style.display === 'block') {
+                document.getElementById('player-container').style.display = 'none';
+                document.getElementById('main-container').style.display = 'block';
+            } else {
+                window.history.back();
+            }
+        });
+
+        document.getElementById('prev-channel-button').addEventListener('click', function () {
+            changeChannel(-1);
+        });
+
+        document.getElementById('next-channel-button').addEventListener('click', function () {
+            changeChannel(1);
+        });
+
+        document.getElementById('volume-down-button').addEventListener('click', function () {
+            adjustVolume(-0.1);
+        });
+
+        document.getElementById('volume-up-button').addEventListener('click', function () {
+            adjustVolume(0.1);
+        });
+
+        document.getElementById('quality-button').addEventListener('click', function () {
+            const qualityMenu = document.querySelector('.quality-menu');
+            qualityMenu.style.display = qualityMenu.style.display === 'none' ? 'block' : 'none';
+        });
+
+        document.querySelector('.quality-menu').addEventListener('click', function (event) {
+            const quality = event.target.dataset.quality;
+            if (quality) {
+                currentQuality = quality;
+                const videoPlayer = document.getElementById('video-player');
+                console.log('Se ha seleccionado la calidad:', quality);
+                document.querySelector('.quality-menu').style.display = 'none';
+            }
+        });
+
+        document.getElementById('theme-switch').addEventListener('click', function () {
+            toggleTheme();
+        });
+
+        document.getElementById('play-pause-button').addEventListener('click', function () {
+            togglePlayPause();
+        });
+
+        document.getElementById('rewind-button').addEventListener('click', function () {
+            skipTime(-10);
+        });
+
+        document.getElementById('forward-button').addEventListener('click', function () {
+            skipTime(10);
+        });
+
+        document.getElementById('fullscreen-button').addEventListener('click', function () {
+            toggleFullScreen();
+        });
+
+        document.getElementById('search-input').addEventListener('input', function () {
+            searchChannels(this.value);
+        });
+
+        document.getElementById('menu-icon').addEventListener('click', function () {
+            const menuContent = document.getElementById('menu-content');
+            menuContent.style.display = menuContent.style.display === 'none' ? 'flex' : 'none';
+        });
+
+        async function loadIPTVList(url) {
+            const progressBar = document.getElementById('progress-bar');
+            const progressBarInner = document.getElementById('progress-bar-inner');
+            const errorMessageDiv = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+
+            progressBar.style.display = 'block';
+            progressBarInner.style.width = '0%';
+
+            try {
+                const cachedData = localStorage.getItem(url);
+                if (cachedData) {
+                    channels = JSON.parse(cachedData);
+                    displayChannels(channels);
+                    progressBar.style.display = 'none';
+                    return;
+                }
+
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('Error al cargar la lista: ' + response.statusText);
+                }
+
+                const contentType = response.headers.get('Content-Type');
+                let data;
+
+                if (contentType.includes('application/json')) {
+                    data = await response.json();
+                    channels = parseJSON(data);
+                } else if (contentType.includes('application/xml') || contentType.includes('text/xml')) {
+                    const textData = await response.text();
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(textData, "application/xml");
+                    channels = parseXML(xmlDoc);
+                } else if (contentType.includes('text/csv') || contentType.includes('application/csv')) {
+                    const textData = await response.text();
+                    channels = parseCSV(textData);
+                } else {
+                    const textData = await response.text();
+                    channels = parseM3U(textData);
+                }
+
+                localStorage.setItem(url, JSON.stringify(channels));
+                displayChannels(channels);
+                progressBar.style.display = 'none';
+            } catch (error) {
+                errorText.textContent = error.message;
+                errorMessageDiv.style.display = 'block';
+                progressBar.style.display = 'none';
+            }
+        }
+
+        function parseM3U(data) {
+            const lines = data.split('\n');
+            const parsedChannels = [];
+            let currentChannel = {};
+
+            lines.forEach(line => {
+                if (line.startsWith('#EXTINF')) {
+                    const info = line.split(',')[1];
+                    currentChannel.name = info.trim();
+                } else if (line.startsWith('http') || line.startsWith('https')) {
+                    currentChannel.url = line.trim();
+                    parsedChannels.push(currentChannel);
+                    currentChannel = {};
+                }
+            });
+
+            return parsedChannels;
+        }
+
+        function parseJSON(data) {
+            return data.channels.map(channel => ({
+                name: channel.name,
+                url: channel.url,
+                description: channel.description || ''
+            }));
+        }
+
+        function parseXML(xmlDoc) {
+            const parsedChannels = [];
+            const items = xmlDoc.getElementsByTagName('channel');
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                parsedChannels.push({
+                    name: item.getElementsByTagName('name')[0].textContent,
+                    url: item.getElementsByTagName('url')[0].textContent,
+                    description: item.getElementsByTagName('description')[0]?.textContent || ''
+                });
+            }
+            return parsedChannels;
+        }
+
+        function parseCSV(data) {
+            const lines = data.split('\n');
+            const parsedChannels = [];
+
+            lines.forEach(line => {
+                const [name, url, description] = line.split(',');
+                if (name && url) {
+                    parsedChannels.push({
+                        name: name.trim(),
+                        url: url.trim(),
+                        description: description ? description.trim() : ''
+                    });
+                }
+            });
+
+            return parsedChannels;
+        }
+
+        function displayChannels(parsedChannels) {
+            channels = parsedChannels;
+            const channelsDiv = document.getElementById('channels');
+            channelsDiv.innerHTML = '';
+
+            channels.forEach((channel, index) => {
+                const channelItem = document.createElement('li');
+                channelItem.classList.add('list-group-item', 'channel-item');
+                const channelName = document.createElement('span');
+                channelName.textContent = channel.name;
+                channelItem.appendChild(channelName);
+                const channelDescription = document.createElement('span');
+                channelDescription.classList.add('channel-description');
+                channelDescription.textContent = channel.description;
+                channelItem.appendChild(channelDescription);
+                channelItem.addEventListener('click', () => {
+                    currentChannelIndex = index;
+                    playChannel(channel.url);
+                    document.getElementById('main-container').style.display = 'none';
+                    document.getElementById('player-container').style.display = 'block';
+                });
+                const favoriteButton = document.createElement('button');
+                favoriteButton.textContent = '★';
+                favoriteButton.classList.add('btn', 'btn-warning', 'btn-sm');
+                favoriteButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    addFavorite(channel);
+                });
+                channelItem.appendChild(favoriteButton);
+                channelsDiv.appendChild(channelItem);
+            });
+        }
+
+        function displayFavorites() {
+            const favoritesDiv = document.getElementById('favorites');
+            favoritesDiv.innerHTML = '';
+
+            favorites.forEach((channel, index) => {
+                const favoriteItem = document.createElement('li');
+                favoriteItem.classList.add('list-group-item', 'favorite-item');
+                const channelName = document.createElement('span');
+                channelName.textContent = channel.name;
+                favoriteItem.appendChild(channelName);
+                const channelDescription = document.createElement('span');
+                channelDescription.classList.add('channel-description');
+                channelDescription.textContent = channel.description;
+                favoriteItem.appendChild(channelDescription);
+                favoriteItem.addEventListener('click', () => {
+                    playChannel(channel.url);
+                    document.getElementById('main-container').style.display = 'none';
+                    document.getElementById('player-container').style.display = 'block';
+                });
+                favoritesDiv.appendChild(favoriteItem);
+            });
+        }
+
+        function addFavorite(channel) {
+            if (!favorites.some(fav => fav.url === channel.url)) {
+                favorites.push(channel);
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+                displayFavorites();
+            }
+        }
+
+        function playChannel(url) {
+            const videoSource = document.getElementById('video-source');
+            const videoPlayer = document.getElementById('video-player');
+
+            videoPlayer.pause();
+            videoSource.src = url;
+            videoPlayer.load();
+
+            videoPlayer.addEventListener('canplay', function () {
+                videoPlayer.play().catch(error => {
+                    alert('Error al reproducir el canal: ' + error.message);
+                    console.error('Error al reproducir el canal:', error);
+                });
+            }, { once: true });
+
+            videoPlayer.addEventListener('waiting', function () {
+                videoPlayer.playbackRate = 0.75;
+            });
+            videoPlayer.addEventListener('playing', function () {
+                videoPlayer.playbackRate = 1.0;
+            });
+
+            switch (currentQuality) {
+                case 'low':
+                    break;
+                case 'medium':
+                    break;
+                case 'high':
+                    break;
+            }
+        }
+
+        function clearCache() {
+            localStorage.clear();
+            document.getElementById('url-input').value = '';
+            document.getElementById('channels').innerHTML = '';
+        }
+
+        function checkWifiSpeed() {
+            if (navigator.connection && navigator.connection.effectiveType) {
+                const effectiveType = navigator.connection.effectiveType;
+                console.log("Tipo de conexión:", effectiveType);
+
+                switch (effectiveType) {
+                    case 'slow-2g':
+                    case '2g':
+                        alert('Conexión lenta de WiFi, se ha reducido la calidad del stream.');
+                        const videoPlayer = document.getElementById('video-player');
+                        videoPlayer.playbackRate = 0.5;
+                        break;
+                    case '3g':
+                    case '4g':
+                        break;
+                    case '5g':
+                        break;
+                    default:
+                        break;
+                }
+            } else {
+                console.warn("Network Information API no disponible.");
+            }
+        }
+
+        document.getElementById('video-player').addEventListener('playing', checkWifiSpeed);
+
+        function optimizePlayer() {
+            const videoPlayer = document.getElementById('video-player');
+
+            videoPlayer.addEventListener('waiting', function () {
+                videoPlayer.playbackRate = 0.75;
+            });
+            videoPlayer.addEventListener('playing', function () {
+                videoPlayer.playbackRate = 1.0;
+            });
+
+            function checkWifiSpeed() {
+                const isSlow = false;
+
+                if (isSlow) {
+                    alert('Conexión lenta de WiFi, se ha reducido la calidad del stream.');
+                }
+            }
+
+            videoPlayer.addEventListener('playing', checkWifiSpeed);
+        }
+
+        document.getElementById('video-player').addEventListener('loadeddata', optimizePlayer);
+
+        function changeChannel(direction) {
+            currentChannelIndex += direction;
+            if (currentChannelIndex < 0) {
+                currentChannelIndex = channels.length - 1;
+            } else if (currentChannelIndex >= channels.length) {
+                currentChannelIndex = 0;
+            }
+            playChannel(channels[currentChannelIndex].url);
+        }
+
+        function adjustVolume(change) {
+            currentVolume += change;
+            if (currentVolume < 0) {
+                currentVolume = 0;
+            } else if (currentVolume > 1) {
+                currentVolume = 1;
+            }
+            const videoPlayer = document.getElementById('video-player');
+            videoPlayer.volume = currentVolume;
+        }
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            document.querySelector('.container').classList.toggle('dark-mode', isDarkMode);
+            document.querySelector('.top-nav').classList.toggle('dark-mode', isDarkMode);
+            document.querySelector('.menu-content').classList.toggle('dark-mode', isDarkMode);
+            document.querySelector('.theme-switch').textContent = isDarkMode ? 'Tema Claro' : 'Tema Oscuro';
+            localStorage.setItem('darkMode', isDarkMode);
+        }
+
+        function loadTheme() {
+            isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                document.querySelector('.container').classList.add('dark-mode');
+                document.querySelector('.top-nav').classList.add('dark-mode');
+                document.querySelector('.menu-content').classList.add('dark-mode');
+                document.querySelector('.theme-switch').textContent = 'Tema Claro';
+            }
+        }
+
+        function togglePlayPause() {
+            const videoPlayer = document.getElementById('video-player');
+            if (videoPlayer.paused) {
+                videoPlayer.play();
+                document.getElementById('play-pause-button').textContent = 'Pausar';
+            } else {
+                videoPlayer.pause();
+                document.getElementById('play-pause-button').textContent = 'Reproducir';
+            }
+        }
+
+        function skipTime(seconds) {
+            const videoPlayer = document.getElementById('video-player');
+            videoPlayer.currentTime += seconds;
+        }
+
+        function toggleFullScreen() {
+            const videoPlayer = document.getElementById('video-player');
+            if (!document.fullscreenElement) {
+                videoPlayer.requestFullscreen().catch(err => {
+                    alert(`Error al intentar activar el modo de pantalla completa: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function searchChannels(query) {
+            const lowerCaseQuery = query.toLowerCase();
+            const filteredChannels = channels.filter(channel => channel.name.toLowerCase().includes(lowerCaseQuery));
+            displayChannels(filteredChannels);
+        }
+
+        function startAutoChange(interval) {
+            clearInterval(autoChangeInterval);
+            autoChangeInterval = setInterval(() => {
+                changeChannel(1);
+            }, interval * 1000);
+        }
+
+        function stopAutoChange() {
+            clearInterval(autoChangeInterval);
+        }
+
+        loadTheme();
+
+        // Load favorites from local storage
+        favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+</body>
+</html>
